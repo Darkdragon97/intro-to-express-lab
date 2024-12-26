@@ -1,46 +1,11 @@
 const express = require('express')
-
 const app = express()
 
-app.get('/', (req, res) => {
-  res.send('Hello, everyone!')
-})
-
-app.listen(3000, () => {
-  console.log('EJS App is listening om port 3000')
-})
-
-app.get('/greetings/:username', (req, res) => {
-  const username = req.params.usernameres.send('Hello there, ${username}!')
-})
-
-app.get('/roll:number', (req, res) => {
-  const number = parseInt(req.params.number)
-  if (isNaN(number)) {
-    res.send('You must specify a number.')
-  } else {
-    const roll = math.floor(Math.random() * (number + 1))
-    res.send('You rolled a ${roll}.')
-  }
-})
-
-const collectible = [
+const collectibles = [
   { name: 'shiny ball', price: 5.95 },
-  { name: 'aurographed picture of a dog', price: 10 },
+  { name: 'autographed picture of a dog', price: 7 },
   { name: 'vintage 1970s yogurt SOLD AS-IS', price: 0.99 }
 ]
-
-app.get('/collectible/:index', (req, res) => {
-  const index = parseInt(req.params.index)
-  if (index < 0 || index >= collectible.length) {
-    res.send('This item is not yet in stock. Check bacl soon!')
-  } else {
-    const item = collectible[index]
-    res.send(
-      'So, you want the ${item.name}? for ${item.price}, it can be yours!'
-    )
-  }
-})
 
 const shoes = [
   { name: 'Birkenstocks', price: 50, type: 'sandal' },
@@ -52,23 +17,65 @@ const shoes = [
   { name: 'Fifty-Inch Heels', price: 175, type: 'heel' }
 ]
 
-app.get('/shoes', (req, res) => {
-  let filterdShoes = shoes
+app.get('/', (req, res) => {
+  res.send('Server is running!')
+})
 
-  if (req.query['min-price']) {
-    const minPrice = parseFloat(req.query['min-price'])
-    filterdShoes = filterdShoes.filter((shoe) => shoe.price >= minPrice)
+app.get('/greetings/:username', (req, res) => {
+  const username = req.params.username
+  res.send(`Hi how are you doing?, ${username}.`)
+})
+
+app.get('/roll/:number', (req, res) => {
+  const number = req.params.number
+  if (isNaN(number)) {
+    return res.send('You must specify a number.')
+  }
+  const max = parseInt(number, 10)
+  const randomRoll = Math.floor(Math.random() * (max + 1))
+  res.send(`You rolled a ${randomRoll}.`)
+})
+
+app.get('/collectibles/:index', (req, res) => {
+  const index = req.params.index
+  if (isNaN(index) || index < 0 || index >= collectibles.length) {
+    return res.send('This item is not yet in stock. Try again later!')
+  }
+  const item = collectibles[index]
+  res.send(
+    `So, you want the ${item.name}? For $${item.price}, it can be yours!`
+  )
+})
+
+app.get('/shoes', (req, res) => {
+  const minPrice = req.query['min-price']
+    ? parseFloat(req.query['min-price'])
+    : null
+  const maxPrice = req.query['max-price']
+    ? parseFloat(req.query['max-price'])
+    : null
+  const type = req.query.type
+
+  let filteredShoes = shoes
+
+  if (minPrice !== null) {
+    filteredShoes = filteredShoes.filter((shoe) => shoe.price >= minPrice)
   }
 
-  if (req.query['max-price']) {
-    const maxPrice = parseFloat(req.query['max-price'])
+  if (maxPrice !== null) {
     filteredShoes = filteredShoes.filter((shoe) => shoe.price <= maxPrice)
   }
 
-  if (req.query['type']) {
-    const type = req.query['type']
-    filterdShoes = filterdShoes.filter((shoe) => shoe.type === type)
+  if (type) {
+    filteredShoes = filteredShoes.filter(
+      (shoe) => shoe.type.toLowerCase() === type.toLowerCase()
+    )
   }
 
-  res.json(filterdShoes)
+  res.json(filteredShoes)
+})
+
+const PORT = 3000
+app.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`)
 })
