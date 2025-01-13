@@ -21,6 +21,12 @@ app.get('/', (req, res) => {
   res.send('Server is running!')
 })
 
+app.get('/hello', (req, res) => {
+  res.send(
+    `Hello there, ${req.query.name}! I hear you are ${req.query.age} years old!`
+  )
+})
+
 app.get('/greetings/:username', (req, res) => {
   const username = req.params.username
   res.send(`Hi how are you doing?, ${username}.`)
